@@ -1,0 +1,31 @@
+-----------------------------------------------------------
+---           Modelo de datos ---- MDSQL v9  ------------
+-----------------------------------------------------------
+---Nº PETICIÓN:       RF-TYPES
+---FECHA:             16/05/2023 08:52:34
+---SOLICITADA POR:    MARIPAM
+---OBJETOS AFECTADOS: O_ASIS_SAL_JUSTIFICANTES_COP_S
+---PROYECTO:          MDSQL_AGC_OBJ
+---ENTORNO:           FD012
+---REALIZADO POR:     MARIPAM
+-----------------------------------------------------------
+---TOTAL TABLAS      - CREADAS: 0, MODIFICADAS: 0, ELIMINADAS: 0
+---TOTAL INDICES     - CREADOS: 0, MODIFICADOS: 0, ELIMINADOS: 0
+---TOTAL VISTAS      - CREADAS: 0,                 ELIMINADAS: 0
+---TOTAL VISTAS MAT. - CREADAS: 0, MODIFICADAS: 0, ELIMINADAS: 0
+---TOTAL SECUENCIAS  - CREADAS: 0, MODIFICADAS: 0, ELIMINADAS: 0
+---TOTAL TYPES       - CREADOS: 1,                 ELIMINADOS: 0
+---TOTAL OBJETOS AFECTADOS: 1
+---VARIABLES UTILIZADAS: &&USROWN
+-----------------------------------------------------------
+CREATE OR REPLACE TYPE &&USROWN..O_ASIS_SAL_JUSTIFICANTES_COP_S AS OBJECT
+(
+    JUSTIFICANTESANTERIORE2        VARCHAR2(3),
+    CODERROR2                      VARCHAR2(10),
+    DESERROR2                      VARCHAR2(1000)
+,CONSTRUCTOR FUNCTION O_ASIS_SAL_JUSTIFICANTES_COP_S(
+    P_JUSTIFICANTESANTERIORE2      VARCHAR2,
+    P_CODERROR2                    VARCHAR2,
+    P_DESERROR2                    VARCHAR2) RETURN SELF AS RESULT
+);
+/

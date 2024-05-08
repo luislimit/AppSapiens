@@ -1,0 +1,2 @@
+DROP TABLE &&USROWN._LD.AAA;
+/ 

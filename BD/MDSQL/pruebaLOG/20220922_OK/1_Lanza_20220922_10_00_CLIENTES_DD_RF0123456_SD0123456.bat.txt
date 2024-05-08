@@ -1,0 +1,1 @@
+exit | sqlplus usuario/pwd@bbdd  @"c:\pruebaLOG\Lanza_20220922_10_00_CLIENTES_DD_RF0123456_SD0123456.sql"

@@ -1,0 +1,18 @@
+-----------------------------------------------------------
+---           Modelo de datos ---- MDSQL v9  ------------
+-----------------------------------------------------------
+---Nº PETICIÓN:       RF-TYPES
+---FECHA:             16/05/2023 08:52:34
+---SOLICITADA POR:    MARIPAM
+---OBJETOS AFECTADOS: O_ASIS_SAL_JUSTIFICANTES_ANT_S
+---PROYECTO:          MDSQL_AGC_OBJ
+---ENTORNO:           FD012
+---REALIZADO POR:     MARIPAM
+-----------------------------------------------------------
+---TOTAL PERMISOS : 1
+---TOTAL SINÓNIMOS - CREADOS: 1, ELIMINADOS: 0
+---TOTAL OBJETOS AFECTADOS: 1
+---VARIABLES UTILIZADAS: &&USROWN,&&USEROBJ
+-----------------------------------------------------------
+GRANT EXECUTE ON &&USROWN..O_ASIS_SAL_JUSTIFICANTES_ANT_S TO &&USEROBJ;
+CREATE OR REPLACE SYNONYM &&USEROBJ..O_ASIS_SAL_JUSTIFICANTES_ANT_S FOR &&USROWN..O_ASIS_SAL_JUSTIFICANTES_ANT_S;
