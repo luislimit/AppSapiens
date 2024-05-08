@@ -800,43 +800,7 @@ public class FramePrincipalActionListener extends ListenerSupport implements Act
 	 */
 	private void fillProcesadoScript(List<Script> scripts) {
 		if (CollectionUtils.isNotEmpty(scripts)) {
-			for (Script script : scripts) {
-				if ("SQL".equals(script.getTipoScript())) {
-					framePrincipal.getIfrmSQLModificado().setTitle(script.getNombreScript());
-					framePrincipal.getTxtSQLModificado().setText(StringUtils.EMPTY);
-					MDSQLAppHelper.dumpContentToText(script.getLineasScript(), framePrincipal.getTxtSQLModificado());
-					framePrincipal.getIfrmLanzaSQLModificado().setTitle(script.getNombreScriptLanza());
-					framePrincipal.getTxtLanzaSQLModificado().setText(script.getTxtScriptLanza());
-					MDSQLUIHelper.resetCursor(framePrincipal.getTxtSQLModificado());
-				}
-
-				if ("PDC".equals(script.getTipoScript())) {
-					framePrincipal.getIfrmPDC().setTitle(script.getNombreScript());
-					framePrincipal.getTxtPDC().setText(StringUtils.EMPTY);
-					MDSQLAppHelper.dumpContentToText(script.getLineasScript(), framePrincipal.getTxtPDC());
-					framePrincipal.getIfrmLanzaPDC().setTitle(script.getNombreScriptLanza());
-					framePrincipal.getTxtLanzaPDC().setText(script.getTxtScriptLanza());
-					MDSQLUIHelper.resetCursor(framePrincipal.getTxtPDC());
-				}
-
-				if ("SQLH".equals(script.getTipoScript())) {
-					framePrincipal.getIfrmSQLH().setTitle(script.getNombreScript());
-					framePrincipal.getTxtSQLH().setText(StringUtils.EMPTY);
-					MDSQLAppHelper.dumpContentToText(script.getLineasScript(), framePrincipal.getTxtSQLH());
-					framePrincipal.getIfrmLanzaSQLH().setTitle(script.getNombreScriptLanza());
-					framePrincipal.getTxtLanzaSQLH().setText(script.getTxtScriptLanza());
-					MDSQLUIHelper.resetCursor(framePrincipal.getTxtSQLH());
-				}
-
-				if ("PDCH".equals(script.getTipoScript())) {
-					framePrincipal.getIfrmPDCH().setTitle(script.getNombreScript());
-					framePrincipal.getTxtPDCH().setText(StringUtils.EMPTY);
-					MDSQLAppHelper.dumpContentToText(script.getLineasScript(), framePrincipal.getTxtPDCH());
-					framePrincipal.getIfrmLanzaPDCH().setTitle(script.getNombreScriptLanza());
-					framePrincipal.getTxtLanzaPDCH().setText(script.getTxtScriptLanza());
-					MDSQLUIHelper.resetCursor(framePrincipal.getTxtPDCH());
-				}
-			}
+			MDSQLUIHelper.putScriptsOn(framePrincipal, scripts);
 
 			framePrincipal.getTabPanel().setEnabledAt(0, Boolean.TRUE);
 			framePrincipal.getTabPanel().setEnabledAt(1, Boolean.TRUE);

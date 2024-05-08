@@ -163,6 +163,14 @@ public class DialogCreator extends Creator {
 		if (MDSQLConstants.CMD_MNTO_VARIABLES.equals(option)) {
 			dialog = new PantallaMantenimientoVariables(frameParent, modal, params);
 		}
+		
+		if (MDSQLConstants.CMD_MNTO_ENTORNOS_PRUEBAS.equals(option)) {
+			dialog = new PantallaMantenimientoEntornosPrueba(frameParent, modal, params);
+		}
+		
+		if (MDSQLConstants.CMD_MNTO_SCRIPT_INICIAL.equals(option)) {
+			dialog = new PantallaEjecutarScriptInicialEntornoPrueba(frameParent, modal, params);
+		}
 
 		return dialog;
 	}

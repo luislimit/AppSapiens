@@ -26,7 +26,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.mdval</groupId>
 			<artifactId>mdcommon</artifactId>
@@ -109,12 +109,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>com.yworks</groupId>
-		    <artifactId>yguard</artifactId>
-		    <version>4.0.0</version>
-		    <scope>compile</scope>
+			<groupId>com.yworks</groupId>
+			<artifactId>yguard</artifactId>
+			<version>4.0.0</version>
+			<scope>compile</scope>
 		</dependency>
 
 	</dependencies>
@@ -153,51 +153,18 @@
 					</execution>
 				</executions>
 			</plugin>
-			
-			<!-- <plugin>
-    			<artifactId>maven-antrun-plugin</artifactId>
-    			<executions>
-        			<execution>
-            			<phase>package</phase>
-            			<goals>
-                			<goal>run</goal>
-            			</goals>
-            			<id>obfuscate</id>
-            			<configuration>
-                			<tasks>
-				                <property
-				                	name="project.jar"
-				                 	value="${project.build.directory}/${project.build.finalName}.jar"/>
-			                	<property
-			                 		name="project.jar.unobf"
-			                 		value="${project.build.directory}/${project.build.finalName}_unobf.jar"/>
-			                	<move
-			                 		file="${project.jar}"
-			                 		tofile="${project.jar.unobf}"
-			                 		verbose="true"/>
-			
-			                	<property
-			                 		name="runtime_classpath"
-			                 		refid="maven.runtime.classpath"/>
-			                	<taskdef
-			                 		name="yguard"
-			                 		classname="com.yworks.yguard.YGuardTask"
-			                 		classpath="${runtime_classpath}"/>
-			                	<yguard>
-			                  		<inoutpair in="${project.jar.unobf}" out="${project.jar}" />
-			
-			                  		<rename logfile="${project.build.directory}/${project.build.finalName}_renamelog.xml">
-			                    		<keep>
-			                      			<method name="void main(java.lang.String[])" class="${mainclass}"/>
-			                    		</keep>
-			                  		</rename>
-			                	</yguard>
-			            	</tasks>
-            			</configuration>
-        			</execution>
-    			</executions>
-			</plugin> -->
 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>${mainclass}</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

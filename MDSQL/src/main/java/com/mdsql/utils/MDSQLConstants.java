@@ -122,7 +122,9 @@ public class MDSQLConstants extends Constants {
 
 	public static final String PROPIETARIO_SERVICE = "propietarioService";
 
-	public static final String ENTORNO_SERVICE = "ENTORNO_SERVICE";
+	public static final String ENTORNO_SERVICE = "entornoService";
+	
+	public static final String ENTORNOS_PRUEBA_SERVICE = "entornosPruebaService";
 
 	/**
 	 * DataBase Types and constants
@@ -184,6 +186,8 @@ public class MDSQLConstants extends Constants {
 	public static final String T_T_NIVEL_AVISO = "T_T_NIVEL_AVISO";
 
 	public static final String T_T_ENTORNO = "T_T_ENTORNO";
+	
+	public static final String T_T_ENTORNO_PRUEBA = "T_T_ENTORNO_PRUEBA";
 
 	public static final String T_T_VARIABLE = "T_T_VARIABLE";
 
@@ -375,6 +379,7 @@ public class MDSQLConstants extends Constants {
 	public static final String MNU_CONSULTA_HISTORICO_CAMBIOS = "MNU_CONSULTA_HISTORICO_CAMBIOS";
 	public static final String MNU_CONSULTA_PETICIONES = "MNU_CONSULTA_PETICIONES";
 	public static final String MNU_MANTENIMIENTO_ENTORNOS_PRUEBAS = "MNU_MANTENIMIENTO_ENTORNOS_PRUEBAS";
+	public static final String MNU_MANTENIMIENTO_SCRIPT_INICIAL = "MNU_MANTENIMIENTO_SCRIPT_INICIAL";
 	public static final String MNU_EJECUCION_SCRIPT_INICIAL = "MNU_EJECUCION_SCRIPT_INICIAL";
 	public static final String MNU_NOTAS_MODELOS = "MNU_NOTAS_MODELOS";
 	public static final String MNU_CONFIGURACION_ENTORNOS_PRUEBA = "MNU_CONFIGURACION_ENTORNOS_PRUEBA";
@@ -440,6 +445,10 @@ public class MDSQLConstants extends Constants {
 	public static final String CMD_MNTO_ENTORNOS = "CMD_MNTO_ENTORNOS";
 
 	public static final String CMD_MNTO_VARIABLES = "CMD_MNTO_VARIABLES";
+	
+	public static final String CMD_MNTO_ENTORNOS_PRUEBAS = "CMD_MNTO_ENTORNOS_PRUEBAS";
+	
+	public static final String CMD_MNTO_SCRIPT_INICIAL = "CMD_MNTO_SCRIPT_INICIAL";
 
 	/**
 	 * Panel principal
@@ -454,6 +463,7 @@ public class MDSQLConstants extends Constants {
 	public static final String NOTAS_MODELO_TABLA_CABECERA = "NOTAS_MODELO_TABLA_CABECERA";
 
 	public static final String MNTO_ENTORNOS_TABLA_CABECERA = "MNTO_ENTORNOS_TABLA_CABECERA";
+	public static final String MNTO_ENTORNOS_PRUEBA_TABLA_CABECERA = "MNTO_ENTORNOS_PRUEBA_TABLA_CABECERA";
 
 	public static final String MNTO_VARIABLES_TABLA_CABECERA = "MNTO_VARIABLES_TABLA_CABECERA";
 

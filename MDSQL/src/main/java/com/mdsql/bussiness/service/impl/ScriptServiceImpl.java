@@ -349,9 +349,57 @@ public class ScriptServiceImpl extends ServiceSupport implements ScriptService {
 			throw new ServiceException(e);
 		}
 	}
+	
+	@Override
+	public OutputRegistraEjecucionParche executeScriptParche(BBDD bbdd, Script script) throws ServiceException {
+		try {
+			Session session = (Session) MDSQLAppHelper.getGlobalProperty(MDSQLConstants.SESSION);
+			String selectedRoute = session.getSelectedRoute();
+			String ruta = selectedRoute.concat(File.separator);
+			String nombreEsquema = StringUtils.EMPTY;
+			String nombreBBDD = StringUtils.EMPTY;
+
+			Proceso proceso = session.getProceso();
+			proceso.setRutaTrabajo(ruta);
+			String codigoUsuario = session.getCodUsr();
+			ConfigurationSingleton configuration = ConfigurationSingleton.getInstance();
+			String txtClaveEncriptada = configuration.getConfig(MDSQLConstants.TOKEN).substring(17, 29);
+
+			/**
+			 * Según sea el tipo de script (SQL, PDC, SQLH, PDCH), se seleccionará la base
+			 * de datos o la de histórico para su ejecución
+			 */
+			if ("SQL".equals(script.getTipoScript()) || "PDC".equals(script.getTipoScript())) {
+				nombreEsquema = bbdd.getNombreEsquema();
+				nombreBBDD = bbdd.getNombreBBDD();
+			}
+
+			// Sólo hay que crear el script lanza
+			String lanzaFile = ruta.concat(script.getNombreScriptLanza());
+
+			String password = bbddService.consultaPasswordBBDD(nombreBBDD, nombreEsquema, txtClaveEncriptada);
+			//bbdd.setPassword(password);
+
+			// Ejecución del script
+			executeLanzaFile(nombreEsquema, nombreBBDD, password, lanzaFile);
+
+			// Obtiene el log
+			String logFile = ruta.concat(script.getNombreScriptLog());
+			List<TextoLinea> logLinesList = MDSQLAppHelper.writeFileToLines(new File(logFile));
+
+			// Registra la ejecución
+			OutputRegistraEjecucionParche outputRegistraEjecucion = ejecucionService.registraEjecucionParche(
+					proceso.getIdProceso(), script.getNumeroOrden(), codigoUsuario, logLinesList, StringUtils.EMPTY);
+
+			return outputRegistraEjecucion;
+		} catch (IOException e) {
+			LogWrapper.error(log, "[ScriptService.executeScriptParche] Error", e);
+			throw new ServiceException(e);
+		}
+	}
 
 	@SneakyThrows
-	private void ejecutarRepararScript(Script script, Boolean isReparacion, Boolean isSameScript,
+	public void ejecutarRepararScript(Script script, Boolean isReparacion, Boolean isSameScript,
 			OutputReparaScript outputReparaScript) {
 		// TODO return OutputRegistraEjecucion or OutputRegistraEjecucionParche
 		// separate?
@@ -362,17 +410,25 @@ public class ScriptServiceImpl extends ServiceSupport implements ScriptService {
 		String ruta = session.getProceso().getRutaTrabajo();
 		BBDD bbdd = session.getProceso().getBbdd();
 		
+		ConfigurationSingleton configuration = ConfigurationSingleton.getInstance();
+		String txtClaveEncriptada = configuration.getConfig(MDSQLConstants.TOKEN).substring(17, 29);
+		
 		String nombreEsquema = StringUtils.isNotBlank(bbdd.getNombreEsquema()) ? bbdd.getNombreEsquema()
 				: bbdd.getNombreEsquemaHis();
 		String nombreBBDD = StringUtils.isNotBlank(bbdd.getNombreBBDD()) ? bbdd.getNombreBBDD()
 				: bbdd.getNombreBBDDHis();
+		
+		String password = bbddService.consultaPasswordBBDD(nombreBBDD, nombreEsquema, txtClaveEncriptada);
+		
+		// Esto causa reescritura de ficheros
+		MDSQLAppHelper.dumpLinesToFile(outputReparaScript.getScriptRepara(), Paths.get(ruta.concat(outputReparaScript.getNombreScriptRepara())).toFile());
 
-		String lanzaFile = ruta.concat(outputReparaScript.getNombreScriptRepara());
-		MDSQLAppHelper.dumpLinesToFile(outputReparaScript.getScriptRepara(), Paths.get(lanzaFile).toFile());
+		String lanzaFile = ruta.concat(outputReparaScript.getNombreScriptLanza());
+		MDSQLAppHelper.dumpStringToFile(outputReparaScript.getScriptLanza(), Paths.get(lanzaFile).toFile());
 		
-		executeLanzaFile(nombreEsquema, nombreBBDD, bbdd.getPassword(), lanzaFile);
+		executeLanzaFile(nombreEsquema, nombreBBDD, password, lanzaFile);
 		
-		String logFile = ruta.concat(script.getNombreScriptLog());
+		String logFile = ruta.concat(outputReparaScript.getNombreLogRepara());
 		List<TextoLinea> logLinesList = MDSQLAppHelper.writeFileToLines(new File(logFile));
 
 		if (isReparacion.equals(Boolean.TRUE)) {
@@ -413,11 +469,15 @@ public class ScriptServiceImpl extends ServiceSupport implements ScriptService {
 					inputReparaScript.getMcaMismoScript(), inputReparaScript.getNombreScriptNew(),
 					inputReparaScript.getTxtRutaNew(), inputReparaScript.getScriptNew(),
 					inputReparaScript.getTxtComentario(), inputReparaScript.getNombreScriptParche(),
-					inputReparaScript.getTxtRutaParche(), inputReparaScript.getScriptParche());
+					inputReparaScript.getTxtRutaParche(), inputReparaScript.getScriptParche(),
+					inputReparaScript.getNombreBBDD(), inputReparaScript.getNombreEsquema(),
+					inputReparaScript.getPMcaHis(), inputReparaScript.getNombreBBDDHis(),
+					inputReparaScript.getNombreEsquemaHis(), inputReparaScript.getListaObjetoHis());
 
 			Array arrayLineaScriptNew = null;
+			Struct[] structLineaScriptNew = {};
 			if (!Objects.isNull(inputReparaScript.getScriptNew())) {
-				Struct[] structLineaScriptNew = new Struct[inputReparaScript.getScriptNew().size()];
+				structLineaScriptNew = new Struct[inputReparaScript.getScriptNew().size()];
 
 				int arrayIndexLinea = 0;
 				for (TextoLinea data : inputReparaScript.getScriptNew()) {
@@ -428,12 +488,13 @@ public class ScriptServiceImpl extends ServiceSupport implements ScriptService {
 				arrayLineaScriptNew = ((OracleConnection) conn).createOracleArray(tableLinea, structLineaScriptNew);
 			}
 			else {
-				arrayLineaScriptNew = ((OracleConnection) conn).createOracleArray(tableLinea, null);
+				arrayLineaScriptNew = ((OracleConnection) conn).createOracleArray(tableLinea, structLineaScriptNew);
 			}
 			
 			Array arrayLineaScriptParche = null;
+			Struct[] structLineaScriptParche = {};
 			if (!Objects.isNull(inputReparaScript.getScriptParche())) {
-				Struct[] structLineaScriptParche = new Struct[inputReparaScript.getScriptParche().size()];
+				structLineaScriptParche = new Struct[inputReparaScript.getScriptParche().size()];
 				
 				int arrayIndexLineaParche = 0;
 				for (TextoLinea data : inputReparaScript.getScriptParche()) {
@@ -445,11 +506,11 @@ public class ScriptServiceImpl extends ServiceSupport implements ScriptService {
 						structLineaScriptParche);
 			}
 			else {
-				arrayLineaScriptParche = ((OracleConnection) conn).createOracleArray(tableLinea, null);
+				arrayLineaScriptParche = ((OracleConnection) conn).createOracleArray(tableLinea, structLineaScriptParche);
 			}
 			
 			Array arrayObjHis = null;
-			Struct[] structObjHis = null;
+			Struct[] structObjHis = {};
 			if (CollectionUtils.isNotEmpty(inputReparaScript.getListaObjetoHis())) {
 				structObjHis = new Struct[inputReparaScript.getListaObjetoHis().size()];
 
@@ -461,9 +522,12 @@ public class ScriptServiceImpl extends ServiceSupport implements ScriptService {
 					structObjHis[arrayIndexObjHis++] = conn.createStruct(recordObjHis,
 							new Object[] { data.getObjeto(), data.getTipo(), mcaVigente, mcaHistorico });
 				}
+				
+				arrayObjHis = ((OracleConnection) conn).createOracleArray(tableObjHis, structObjHis);
 			}
-
-			arrayObjHis = ((OracleConnection) conn).createOracleArray(tableObjHis, structObjHis);
+			else {
+				arrayObjHis = ((OracleConnection) conn).createOracleArray(tableObjHis, structObjHis);
+			}
 
 			callableStatement.setBigDecimal(1, inputReparaScript.getIdProceso());
 			callableStatement.setBigDecimal(2, inputReparaScript.getNumeroOrden());
@@ -491,7 +555,7 @@ public class ScriptServiceImpl extends ServiceSupport implements ScriptService {
 			callableStatement.registerOutParameter(19, Types.VARCHAR);
 			callableStatement.registerOutParameter(20, Types.ARRAY, tableLinea);
 			callableStatement.registerOutParameter(21, Types.VARCHAR);
-			callableStatement.registerOutParameter(22, Types.ARRAY, tableLinea);
+			callableStatement.registerOutParameter(22, Types.VARCHAR);
 			callableStatement.registerOutParameter(23, Types.VARCHAR);
 			callableStatement.registerOutParameter(24, Types.ARRAY, typeScriptOld);
 			callableStatement.registerOutParameter(25, Types.ARRAY, typeScript);
@@ -521,19 +585,7 @@ public class ScriptServiceImpl extends ServiceSupport implements ScriptService {
 				}
 			}
 
-			List<TextoLinea> scriptLanza = new ArrayList<>();
-			Array arrayScriptLanza = callableStatement.getArray(22);
-
-			if (arrayScriptLanza != null) {
-				Object[] rows = (Object[]) arrayScriptLanza.getArray();
-				for (Object row : rows) {
-					Object[] cols = ((oracle.jdbc.OracleStruct) row).getAttributes();
-
-					TextoLinea textoLinea = TextoLinea.builder().valor((String) cols[0]).build();
-
-					scriptLanza.add(textoLinea);
-				}
-			}
+			String scriptLanza = callableStatement.getString(22);
 
 			List<ScriptOld> listaScriptOld = new ArrayList<>();
 			Array arrayScriptOld = callableStatement.getArray(24);
@@ -821,7 +873,7 @@ public class ScriptServiceImpl extends ServiceSupport implements ScriptService {
 	 * @param charset
 	 * @throws ServiceException
 	 */
-	private void executeLanzaFile(String nombreEsquema, String nombreBBDD, String password, String fileLocation)  throws ServiceException {
+	public void executeLanzaFile(String nombreEsquema, String nombreBBDD, String password, String fileLocation)  throws ServiceException {
 		String connection = String.format(MDSQLConstants.FORMATO_CONEXION, nombreEsquema, password, nombreBBDD);
 		
 		ProcessBuilder processBuilder = new ProcessBuilder(MDSQLConstants.SQL_PLUS, connection,
@@ -959,6 +1011,78 @@ public class ScriptServiceImpl extends ServiceSupport implements ScriptService {
 			
 			return outputRegistraEjecucion;
 		} catch (IOException e) {
+			throw new ServiceException(e);
+		}
+	}
+
+	@Override
+	public List<OutputRegistraEjecucion> executeScripts(BBDD bbdd, OutputReparaScript outputReparaScript) throws ServiceException {
+		try {
+			Session session = (Session) MDSQLAppHelper.getGlobalProperty(MDSQLConstants.SESSION);
+			String selectedRoute = session.getSelectedRoute();
+			String ruta = selectedRoute.concat(File.separator);
+			String nombreEsquema = StringUtils.EMPTY;
+			String nombreBBDD = StringUtils.EMPTY;
+
+			Proceso proceso = session.getProceso();
+			proceso.setRutaTrabajo(ruta);
+			String codigoUsuario = session.getCodUsr();
+			List<OutputRegistraEjecucion> ejecuciones = new ArrayList<>();
+			ConfigurationSingleton configuration = ConfigurationSingleton.getInstance();
+			String txtClaveEncriptada = configuration.getConfig(MDSQLConstants.TOKEN).substring(17, 29);
+
+			if (CollectionUtils.isNotEmpty(outputReparaScript.getListaScript())) {
+				for (Script script : outputReparaScript.getListaScript()) {
+					// Esto causa reescritura de ficheros
+					MDSQLAppHelper.dumpLinesToFile(script.getLineasScript(), Paths.get(ruta.concat(script.getNombreScript())).toFile());
+
+					/**
+					 * Según sea el tipo de script (SQL, PDC, SQLH, PDCH), se seleccionará la base
+					 * de datos o la de histórico para su ejecución
+					 */
+					if ("SQL".equals(script.getTipoScript()) || "PDC".equals(script.getTipoScript())) {
+						nombreEsquema = bbdd.getNombreEsquema();
+						nombreBBDD = bbdd.getNombreBBDD();
+					}
+
+					if ("SQLH".equals(script.getTipoScript()) || "PDCH".equals(script.getTipoScript())) {
+						nombreEsquema = bbdd.getNombreEsquemaHis();
+						nombreBBDD = bbdd.getNombreBBDDHis();
+					}
+
+					// Sólo hay que crear el script lanza
+					String lanzaFile = ruta.concat(script.getNombreScriptLanza());
+					MDSQLAppHelper.writeToFile(script.getTxtScriptLanza().concat(System.lineSeparator()), Paths.get(lanzaFile).toFile());
+
+					String password = bbddService.consultaPasswordBBDD(nombreBBDD, nombreEsquema, txtClaveEncriptada);
+					//bbdd.setPassword(password);
+
+					// Ejecución del script
+					executeLanzaFile(nombreEsquema, nombreBBDD, password, lanzaFile);
+
+					// Obtiene el log
+					String logFile = ruta.concat(script.getNombreScriptLog());
+					List<TextoLinea> logLinesList = MDSQLAppHelper.writeFileToLines(new File(logFile));
+
+					// Registra la ejecución
+					OutputRegistraEjecucion outputRegistraEjecucion = ejecucionService.registraEjecucion(
+							proceso.getIdProceso(), script.getNumeroOrden(), codigoUsuario, logLinesList);
+					outputRegistraEjecucion.setNumOrden(script.getNumeroOrden());
+					outputRegistraEjecucion.setFechaEjecucion(new Date());
+					ejecuciones.add(outputRegistraEjecucion);
+
+					// Si el script ha dado error, no ejecuta el resto
+					if ("Error".equals(outputRegistraEjecucion.getDescripcionEstadoScript())
+							|| "Descuadrado".equals(outputRegistraEjecucion.getDescripcionEstadoScript())) {
+						break;
+					}
+
+				}
+			}
+
+			return ejecuciones;
+		} catch (IOException e) {
+			LogWrapper.error(log, "[ScriptService.executeScripts] Error", e);
 			throw new ServiceException(e);
 		}
 	}

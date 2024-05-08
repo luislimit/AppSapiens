@@ -12,18 +12,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mdsql.bussiness.entities.Script;
 import com.mdsql.bussiness.entities.TextoLinea;
+import com.mdsql.ui.FramePrincipal;
 import com.mdsql.ui.model.ScriptsTableModel;
 import com.mdsql.ui.utils.creators.CabeceraTablaCreator;
 import com.mdsql.ui.utils.creators.Creator;
 import com.mdsql.ui.utils.creators.DialogCreator;
 import com.mdsql.ui.utils.creators.FrameCreator;
 import com.mdsql.utils.LiteralesSingleton;
+import com.mdsql.utils.MDSQLAppHelper;
 import com.mdsql.utils.MDSQLConstants;
 import com.mdval.exceptions.ServiceException;
 import com.mdval.ui.model.cabeceras.Cabecera;
@@ -34,8 +40,10 @@ import com.mdval.utils.Constants;
 import com.mdval.utils.LogWrapper;
 
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+@UtilityClass
 @Slf4j
 public class MDSQLUIHelper extends UIHelper {
 
@@ -43,7 +51,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param item
 	 * @return
 	 */
-	public static DialogSupport createDialog(FrameSupport frameParent, String item) {
+	public DialogSupport createDialog(FrameSupport frameParent, String item) {
 		Creator dialogCreator = new DialogCreator(frameParent, item);
 		return (DialogSupport) dialogCreator.factoryMethod(null);
 	}
@@ -54,7 +62,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param params
 	 * @return
 	 */
-	public static DialogSupport createDialog(FrameSupport frameParent, String item, Map<String, Object> params) {
+	public DialogSupport createDialog(FrameSupport frameParent, String item, Map<String, Object> params) {
 		Creator dialogCreator = new DialogCreator(frameParent, item);
 		return (DialogSupport) dialogCreator.factoryMethod(params);
 	}
@@ -63,7 +71,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param item
 	 * @return
 	 */
-	public static FrameSupport createFrame(String item, Boolean modal) {
+	public FrameSupport createFrame(String item, Boolean modal) {
 		Creator frameCreator = new FrameCreator(item, modal);
 		return (FrameSupport) frameCreator.factoryMethod(null);
 	}
@@ -72,7 +80,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param item
 	 * @return
 	 */
-	public static FrameSupport createFrame(FrameSupport parent, String item, Boolean modal) {
+	public FrameSupport createFrame(FrameSupport parent, String item, Boolean modal) {
 		Creator frameCreator = new FrameCreator(parent, item, modal);
 		return (FrameSupport) frameCreator.factoryMethod(null);
 	}
@@ -82,7 +90,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param params
 	 * @return
 	 */
-	public static FrameSupport createFrame(String item, Boolean modal, Map<String, Object> params) {
+	public FrameSupport createFrame(String item, Boolean modal, Map<String, Object> params) {
 		Creator frameCreator = new FrameCreator(item, modal);
 		return (FrameSupport) frameCreator.factoryMethod(params);
 	}
@@ -93,7 +101,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param params
 	 * @return
 	 */
-	public static FrameSupport createFrame(FrameSupport parent, String item, Boolean modal,
+	public FrameSupport createFrame(FrameSupport parent, String item, Boolean modal,
 			Map<String, Object> params) {
 		Creator frameCreator = new FrameCreator(parent, item, modal);
 		return (FrameSupport) frameCreator.factoryMethod(params);
@@ -103,7 +111,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param item
 	 * @return
 	 */
-	public static Cabecera createCabeceraTabla(String item) {
+	public Cabecera createCabeceraTabla(String item) {
 		Creator cabeceraTablaCreator = new CabeceraTablaCreator(item);
 		return (Cabecera) cabeceraTablaCreator.factoryMethod();
 	}
@@ -113,7 +121,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param cmd
 	 * @param params
 	 */
-	public static void showPopup(FrameSupport frame, String cmd, Map<String, Object> params) {
+	public void showPopup(FrameSupport frame, String cmd, Map<String, Object> params) {
 		DialogSupport dialog = createDialog(frame, cmd, params);
 		UIHelper.show(dialog);
 	}
@@ -122,7 +130,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param e
 	 * @return
 	 */
-	public static Map<String, Object> buildError(Exception e) {
+	public Map<String, Object> buildError(Exception e) {
 		Map<String, Object> params = new HashMap<>();
 
 		if (e instanceof ServiceException) {
@@ -144,7 +152,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param script
 	 * @return
 	 */
-	public static List<TextoLinea> toTextoLineas(JTextArea txtArea) {
+	public List<TextoLinea> toTextoLineas(JTextArea txtArea) {
 		List<TextoLinea> lineas = new ArrayList<>();
 
 		for (String line : txtArea.getText().split("\\n")) {
@@ -158,7 +166,7 @@ public class MDSQLUIHelper extends UIHelper {
 	}
 
 	@SneakyThrows
-	public static List<TextoLinea> toTextoLineas(File file, Charset inCharset) {
+	public List<TextoLinea> toTextoLineas(File file, Charset inCharset) {
 		List<TextoLinea> lineas = new ArrayList<>();
 
 		try (InputStreamReader in = new InputStreamReader(new FileInputStream(file), inCharset);
@@ -181,7 +189,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param model
 	 * @return
 	 */
-	public static Boolean isAnySelected(ScriptsTableModel model) {
+	public Boolean isAnySelected(ScriptsTableModel model) {
 		for (int i = 0; i < model.getRowCount(); i++) {
 			Script scr = model.getSelectedRow(i);
 			if (scr.getSelected()) {
@@ -195,7 +203,7 @@ public class MDSQLUIHelper extends UIHelper {
 	/**
 	 * @return
 	 */
-	public static JFileChooser getJFileChooser(String rutaInicial) throws IOException {
+	public JFileChooser getJFileChooser(String rutaInicial) throws IOException {
 		LiteralesSingleton literales = LiteralesSingleton.getInstance();
 
 		JFileChooser chooser = new JFileChooser();
@@ -213,7 +221,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param file
 	 * @param frameParent
 	 */
-	public static File abrirScript(String rutaInicial, JTextField textField, FrameSupport frameParent) {
+	public File abrirScript(String rutaInicial, JTextField textField, FrameSupport frameParent) {
 		try {
 			JFileChooser chooser = MDSQLUIHelper.getJFileChooser(rutaInicial);
 			if (chooser.showOpenDialog(frameParent) == JFileChooser.APPROVE_OPTION) {
@@ -237,7 +245,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param warnings
 	 * @return
 	 */
-	public static Map<String, Object> buildWarnings(List<Object[]> warnings) {
+	public Map<String, Object> buildWarnings(List<Object[]> warnings) {
 		Map<String, Object> params = new HashMap<>();
 
 		params.put(Constants.WARN, warnings);
@@ -250,7 +258,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param warnings
 	 * @param frameSupport
 	 */
-	public static void showWarningsIfExists(List<Object[]> warnings, FrameSupport frameSupport) {
+	public void showWarningsIfExists(List<Object[]> warnings, FrameSupport frameSupport) {
 		if (CollectionUtils.isNotEmpty(warnings)) {
 			Map<String, Object> params = MDSQLUIHelper.buildWarnings(warnings);
 			MDSQLUIHelper.showPopup(frameSupport, MDSQLConstants.CMD_WARN, params);
@@ -262,7 +270,7 @@ public class MDSQLUIHelper extends UIHelper {
 	 * @param value
 	 * @param limit
 	 */
-	public static void resetText(JTextField field, String value, Integer limit) {
+	public void resetText(JTextField field, String value, Integer limit) {
 		field.setHorizontalAlignment(JTextField.LEFT);
 
 		if (!Objects.isNull(limit) && value.length() > limit) {
@@ -280,20 +288,60 @@ public class MDSQLUIHelper extends UIHelper {
 	/**
 	 * @param field
 	 */
-	public static void resetCursor(JTextField field) {
+	public void resetCursor(JTextField field) {
 		field.setCaretPosition(0);
 	}
 
 	/**
 	 * @param field
 	 */
-	public static void resetCursor(JTextArea field) {
+	public void resetCursor(JTextArea field) {
 		field.setCaretPosition(0);
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static void setSelectedItem(JComboBox cmb, Object selected) {
+	public void setSelectedItem(JComboBox cmb, Object selected) {
 		cmb.setSelectedItem(selected);
 		cmb.repaint();
+	}
+	
+	public void putScriptsOn(FramePrincipal framePrincipal, List<Script> scripts) {
+		for (Script script : scripts) {
+			if ("SQL".equals(script.getTipoScript())) {
+				framePrincipal.getIfrmSQLModificado().setTitle(script.getNombreScript());
+				framePrincipal.getTxtSQLModificado().setText(StringUtils.EMPTY);
+				MDSQLAppHelper.dumpContentToText(script.getLineasScript(), framePrincipal.getTxtSQLModificado());
+				framePrincipal.getIfrmLanzaSQLModificado().setTitle(script.getNombreScriptLanza());
+				framePrincipal.getTxtLanzaSQLModificado().setText(script.getTxtScriptLanza());
+				MDSQLUIHelper.resetCursor(framePrincipal.getTxtSQLModificado());
+			}
+
+			if ("PDC".equals(script.getTipoScript())) {
+				framePrincipal.getIfrmPDC().setTitle(script.getNombreScript());
+				framePrincipal.getTxtPDC().setText(StringUtils.EMPTY);
+				MDSQLAppHelper.dumpContentToText(script.getLineasScript(), framePrincipal.getTxtPDC());
+				framePrincipal.getIfrmLanzaPDC().setTitle(script.getNombreScriptLanza());
+				framePrincipal.getTxtLanzaPDC().setText(script.getTxtScriptLanza());
+				MDSQLUIHelper.resetCursor(framePrincipal.getTxtPDC());
+			}
+
+			if ("SQLH".equals(script.getTipoScript())) {
+				framePrincipal.getIfrmSQLH().setTitle(script.getNombreScript());
+				framePrincipal.getTxtSQLH().setText(StringUtils.EMPTY);
+				MDSQLAppHelper.dumpContentToText(script.getLineasScript(), framePrincipal.getTxtSQLH());
+				framePrincipal.getIfrmLanzaSQLH().setTitle(script.getNombreScriptLanza());
+				framePrincipal.getTxtLanzaSQLH().setText(script.getTxtScriptLanza());
+				MDSQLUIHelper.resetCursor(framePrincipal.getTxtSQLH());
+			}
+
+			if ("PDCH".equals(script.getTipoScript())) {
+				framePrincipal.getIfrmPDCH().setTitle(script.getNombreScript());
+				framePrincipal.getTxtPDCH().setText(StringUtils.EMPTY);
+				MDSQLAppHelper.dumpContentToText(script.getLineasScript(), framePrincipal.getTxtPDCH());
+				framePrincipal.getIfrmLanzaPDCH().setTitle(script.getNombreScriptLanza());
+				framePrincipal.getTxtLanzaPDCH().setText(script.getTxtScriptLanza());
+				MDSQLUIHelper.resetCursor(framePrincipal.getTxtPDCH());
+			}
+		}
 	}
 }

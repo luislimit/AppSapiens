@@ -7,8 +7,15 @@ package com.mdsql.ui;
 
 import java.util.Map;
 
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionListener;
+
 import com.mdsql.ui.listener.PantallaMantenimientoEntornosPruebaListener;
+import com.mdsql.ui.listener.tables.EntornosPruebaTableListener;
+import com.mdsql.ui.model.EntornosPruebaTableModel;
+import com.mdsql.ui.utils.MDSQLUIHelper;
 import com.mdsql.utils.MDSQLConstants;
+import com.mdval.ui.model.cabeceras.Cabecera;
 import com.mdval.ui.utils.DialogSupport;
 import com.mdval.ui.utils.FrameSupport;
 import com.mdval.ui.utils.TableSupport;
@@ -36,7 +43,7 @@ public class PantallaMantenimientoEntornosPrueba extends DialogSupport {
 	    private javax.swing.JScrollPane jScrollPane2;
 	    
 	    @Getter
-	    private javax.swing.JTable tblMantenimientoHistorico;
+	    private TableSupport tblMantenimientoEntornosPrueba;
 	    
 	    @Getter
 	    private javax.swing.JTextField txtBBDD;
@@ -82,7 +89,7 @@ public class PantallaMantenimientoEntornosPrueba extends DialogSupport {
 	        jLabel14 = new javax.swing.JLabel();
 	        btnGuardar = new javax.swing.JButton();
 	        jScrollPane1 = new javax.swing.JScrollPane();
-	        tblMantenimientoHistorico = new javax.swing.JTable();
+	        tblMantenimientoEntornosPrueba = new TableSupport();
 	        chkHabilitada = new javax.swing.JCheckBox();
 	        jLabel5 = new javax.swing.JLabel();
 	        txtEsquema = new javax.swing.JTextField();
@@ -99,140 +106,148 @@ public class PantallaMantenimientoEntornosPrueba extends DialogSupport {
 	        
 	        setBounds(1366, 768);
 	        
-	        jScrollPane1.setViewportView(tblMantenimientoHistorico);
+	        jScrollPane1.setViewportView(tblMantenimientoEntornosPrueba);
+	        
+	        txtDescripcion.setColumns(20);
+	        txtDescripcion.setRows(5);
+	        jScrollPane2.setViewportView(txtDescripcion);
 	        
 	        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
 	        getContentPane().setLayout(layout);
 	        layout.setHorizontalGroup(
 	            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 	            .addGroup(layout.createSequentialGroup()
-	                .addGap(91, 91, 91)
-	                .addComponent(jLabel14)
-	                .addGap(0, 1187, Short.MAX_VALUE))
-	            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-	                .addGap(24, 24, 24)
-	                .addComponent(jLabel3)
-	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-	                .addComponent(txtNombreEntorno)
-	                .addGap(462, 462, 462))
+	                .addGap(396, 396, 396)
+	                .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
 	            .addGroup(layout.createSequentialGroup()
-	                .addGap(52, 52, 52)
-	                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-	                    .addComponent(jLabel7)
-	                    .addComponent(jLabel1))
-	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+	                .addContainerGap()
+	                .addComponent(jLabel2))
+	            .addGroup(layout.createSequentialGroup()
+	                .addContainerGap()
 	                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 	                    .addGroup(layout.createSequentialGroup()
-	                        .addComponent(txtBBDD, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
-	                        .addGap(80, 80, 80)
-	                        .addComponent(jLabel5)
-	                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-	                        .addComponent(txtEsquema, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE))
-	                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
 	                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
 	                            .addGroup(layout.createSequentialGroup()
+	                                .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+	                                .addGap(334, 334, 334))
+	                            .addGroup(layout.createSequentialGroup()
+	                                .addComponent(jLabel6)
+	                                .addGap(44, 44, 44)
+	                                .addComponent(txtTablespace, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+	                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
 	                                .addComponent(jLabel13)
-	                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-	                                .addComponent(txtGradoparal, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-	                                .addGap(174, 174, 174)
-	                                .addComponent(chkHabilitada))
-	                            .addComponent(jScrollPane2))
-	                        .addGap(462, 462, 462))))
-	            .addGroup(layout.createSequentialGroup()
-	                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+	                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+	                                .addComponent(txtGradoparal, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+	                                .addGap(305, 305, 305)))
+	                        .addGap(0, 0, Short.MAX_VALUE))
 	                    .addGroup(layout.createSequentialGroup()
-	                        .addGap(583, 583, 583)
-	                        .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
-	                    .addGroup(layout.createSequentialGroup()
-	                        .addGap(56, 56, 56)
-	                        .addComponent(jLabel6)
-	                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-	                        .addComponent(txtTablespace, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE))
-	                    .addGroup(layout.createSequentialGroup()
-	                        .addGap(568, 568, 568)
-	                        .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))
-	                    .addGroup(layout.createSequentialGroup()
-	                        .addGap(28, 28, 28)
 	                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-	                            .addComponent(jLabel2)
-	                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1276, javax.swing.GroupLayout.PREFERRED_SIZE))))
-	                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+	                            .addComponent(jScrollPane1)
+	                            .addGroup(layout.createSequentialGroup()
+	                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+	                                    .addGroup(layout.createSequentialGroup()
+	                                        .addComponent(jLabel3)
+	                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+	                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+	                                            .addComponent(jLabel14)
+	                                            .addComponent(txtNombreEntorno, javax.swing.GroupLayout.PREFERRED_SIZE, 702, javax.swing.GroupLayout.PREFERRED_SIZE)))
+	                                    .addComponent(jLabel1)
+	                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+	                                        .addGroup(layout.createSequentialGroup()
+	                                            .addComponent(jLabel7)
+	                                            .addGap(71, 71, 71)
+	                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+	                                                .addGroup(layout.createSequentialGroup()
+	                                                    .addComponent(txtBBDD, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
+	                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+	                                                    .addComponent(jLabel5)
+	                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+	                                                    .addComponent(txtEsquema))
+	                                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 702, javax.swing.GroupLayout.PREFERRED_SIZE)))
+	                                        .addComponent(chkHabilitada)))
+	                                .addGap(0, 0, Short.MAX_VALUE)))
+	                        .addContainerGap())))
 	        );
 	        layout.setVerticalGroup(
 	            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 	            .addGroup(layout.createSequentialGroup()
-	                .addGap(22, 22, 22)
+	                .addContainerGap()
 	                .addComponent(jLabel14)
-	                .addGap(18, 18, 18)
+	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
 	                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-	                    .addComponent(jLabel3)
-	                    .addComponent(txtNombreEntorno, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
-	                .addGap(18, 18, 18)
+	                    .addComponent(txtNombreEntorno, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+	                    .addComponent(jLabel3))
+	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
 	                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
 	                    .addComponent(txtBBDD, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-	                    .addComponent(jLabel7)
 	                    .addComponent(jLabel5)
-	                    .addComponent(txtEsquema, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+	                    .addComponent(txtEsquema, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+	                    .addComponent(jLabel7))
 	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
 	                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 	                    .addComponent(jLabel1)
 	                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
 	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-	                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-	                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-	                        .addComponent(txtTablespace, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-	                        .addComponent(jLabel6))
-	                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-	                        .addComponent(jLabel13)
-	                        .addComponent(txtGradoparal, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-	                        .addComponent(chkHabilitada)))
-	                .addGap(30, 30, 30)
+	                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+	                    .addComponent(txtTablespace, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+	                    .addComponent(jLabel6)
+	                    .addComponent(jLabel13)
+	                    .addComponent(txtGradoparal, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+	                    .addComponent(chkHabilitada))
+	                .addGap(18, 18, 18)
 	                .addComponent(btnGuardar)
-	                .addGap(21, 21, 21)
+	                .addGap(14, 14, 14)
 	                .addComponent(jLabel2)
-	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-	                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
-	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
+	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+	                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+	                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
 	                .addComponent(btnCancelar)
-	                .addGap(23, 23, 23))
+	                .addContainerGap())
 	        );
 		}
 	    
 		@Override
 		protected void initEvents() {
 			PantallaMantenimientoEntornosPruebaListener actionListener = new PantallaMantenimientoEntornosPruebaListener(this);
+			ListSelectionListener listSelectionListener = new EntornosPruebaTableListener(this);
 			
 			btnGuardar.setActionCommand(MDSQLConstants.PANTALLA_MANTENIMIENTO_ENTORNOS_PRUEBA_GUARDAR);
 			btnCancelar.setActionCommand(MDSQLConstants.PANTALLA_MANTENIMIENTO_ENTORNOS_PRUEBA_CANCELAR);
 			
 			btnGuardar.addActionListener(actionListener);
 			btnCancelar.addActionListener(actionListener);
+			
+			ListSelectionModel rowPM = tblMantenimientoEntornosPrueba.getSelectionModel();
+			rowPM.addListSelectionListener(listSelectionListener);
+			
+			this.addOnLoadListener(actionListener);
 		}
 	    
 		@Override
 		protected void initModels() {
-			
+			Cabecera cabecera = MDSQLUIHelper.createCabeceraTabla(MDSQLConstants.MNTO_ENTORNOS_PRUEBA_TABLA_CABECERA);
+			tblMantenimientoEntornosPrueba.initModel(new EntornosPruebaTableModel(cabecera));
 		}
 	    
 		@Override
 		protected void initialState() {
-			
+			btnGuardar.setEnabled(Boolean.FALSE);
 		}
 	    
 		@Override
 		protected void setupLiterals() {
-			 setTitle(literales.getLiteral("PantallaPermisosGeneralesporModeloporTipoObjeto.title"));
+			 setTitle(literales.getLiteral("PantallaMantenimientoEntornosPrueba.titulo"));
 
-			 jLabel3.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.label3"));
+			 jLabel3.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.jLabel3"));
 			 btnCancelar.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.btnCancelar"));
 			 btnGuardar.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.btnGuardar"));
 			 chkHabilitada.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.chkHabilitada"));
-			 jLabel5.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.label5"));
-			 jLabel6.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.label6"));
-			 jLabel7.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.label7"));
-			 jLabel13.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.label13"));
-			 jLabel1.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.label1"));
-			 jLabel2.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.label2"));
+			 jLabel5.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.jLabel5"));
+			 jLabel6.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.jLabel6"));
+			 jLabel7.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.jLabel7"));
+			 jLabel13.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.jLabel13"));
+			 jLabel1.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.jLabel1"));
+			 jLabel2.setText(literales.getLiteral("PantallaMantenimientoEntornosPrueba.jLabel2"));
 		}
 	    
 		/**

@@ -147,30 +147,30 @@ if [ $? -ne 0 ] ; then
 	exit
 fi
 
-echo "Enviando aviso a $TO con copia a $CC"
+#echo "Enviando aviso a $TO con copia a $CC"
 
-echo "Muy señor mío/a.
+#echo "Muy señor mío/a.
 
-Nos complace comunicarle que está disponible para su revisión la entrega
+#Nos complace comunicarle que está disponible para su revisión la entrega
 
-https://github.com/lHernan/AppSapiens/blob/$RAMA/Entregables/$MDSQL_PROJECT-$LATEST.zip
+#https://github.com/lHernan/AppSapiens/blob/$RAMA/Entregables/$MDSQL_PROJECT-$LATEST.zip
 
-El video de entrega se encuentra en:
+#El video de entrega se encuentra en:
 
-https://github.com/lHernan/AppSapiens/blob/$RAMA/Entregables/$MDSQL_PROJECT-$LATEST.wmv
+#https://github.com/lHernan/AppSapiens/blob/$RAMA/Entregables/$MDSQL_PROJECT-$LATEST.wmv
 
-Las siguientes incidencias se han solucionado, rogamos las revisen:
+#Las siguientes incidencias se han solucionado, rogamos las revisen:
 
-$SUMMARY
+#$SUMMARY
 
-Cualquier error nos lo comunican lo más pronto posible para poder solucionarlo.
+#Cualquier error nos lo comunican lo más pronto posible para poder solucionarlo.
 
-Atentamente
-Federico Martín Lara <fmartin@esoluzion.com>" | mail -s "Entregable $LATEST" -aCC:$CC $TO
-if [ $? -ne 0 ] ; then
-	echo "Ocurrió un error al enviar aviso"
-	exit
-fi
+#Atentamente
+#Federico Martín Lara <fmartin@esoluzion.com>" | mail -s "Entregable $LATEST" -aCC:$CC $TO
+#if [ $? -ne 0 ] ; then
+#	echo "Ocurrió un error al enviar aviso"
+#	exit
+#fi
 
 #$DIR_PROJECT/bin/entregar.sh $MDSQL_PROJECT $LATEST
 echo "Entrega $LATEST completada"

@@ -173,10 +173,11 @@ public class DlgRechazarListener extends ListenerSupport implements ActionListen
 		File f = new File(ruta.concat(nombreFile));
 		if (f.exists()) {
 			String rechazado = nombreFile.concat("_" + sufijoRechazo);
-			File newFile = new File(ruta.concat(rechazado));
-			f.renameTo(newFile);
+			MDSQLAppHelper.renombrarArchivo(f, ruta.concat(rechazado));
 		}
 	}
+
+	
 
 	private void rechazarScriptsFromList(String sufijoRechazo, List<Script> scripts, String ruta) {
 		if (StringUtils.isNotBlank(ruta) && CollectionUtils.isNotEmpty(scripts)) {
@@ -188,8 +189,7 @@ public class DlgRechazarListener extends ListenerSupport implements ActionListen
 					String extension = getExtensionByStringHandling(nombreFile).get();
 					String rechazado = name.concat("_" + sufijoRechazo);
 					String fileNameRechazado = rechazado + "." + extension;
-					File newFile = new File(ruta.concat(fileNameRechazado));
-					f.renameTo(newFile);
+					MDSQLAppHelper.renombrarArchivo(f, fileNameRechazado);
 				}
 				
 				nombreFile = script.getNombreScriptLog();
@@ -199,8 +199,7 @@ public class DlgRechazarListener extends ListenerSupport implements ActionListen
 					String extension = getExtensionByStringHandling(nombreFile).get();
 					String rechazado = name.concat("_" + sufijoRechazo);
 					String fileNameRechazado = rechazado + "." + extension;
-					File newFile = new File(ruta.concat(fileNameRechazado));
-					f.renameTo(newFile);
+					MDSQLAppHelper.renombrarArchivo(f, fileNameRechazado);
 				}
 			}
 		}

@@ -124,6 +124,10 @@ public class CabeceraTablaCreator extends Creator {
 		if (MDSQLConstants.MNTO_VARIABLES_TABLA_CABECERA.equals(item)) {
 			cabecera = new TablaVariablesCabecera();
 		}
+		
+		if (MDSQLConstants.MNTO_ENTORNOS_PRUEBA_TABLA_CABECERA.equals(item)) {
+			cabecera = new TablaEntornosPruebasCabecera();
+		}
 
 		return cabecera;
 	}

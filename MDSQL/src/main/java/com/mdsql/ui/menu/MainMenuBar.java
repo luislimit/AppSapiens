@@ -50,7 +50,7 @@ public class MainMenuBar extends MenuSupport {
     
     private JMenuItem mnuMantenimientoEntornosPruebas;
     private JMenuItem mnuEjecucionScriptInicial;
-    private JMenuItem mnuConfiguracionEntornosPrueba;
+//    private JMenuItem mnuConfiguracionEntornosPrueba;
     
     public MainMenuBar(FrameSupport frameParent) {
         super();
@@ -115,9 +115,9 @@ public class MainMenuBar extends MenuSupport {
         mnuEjecucionScriptInicial.setActionCommand(MDSQLConstants.MNU_EJECUCION_SCRIPT_INICIAL); // NOI18N
         mnuScriptInicial.add(mnuEjecucionScriptInicial);
         
-        mnuConfiguracionEntornosPrueba = new JMenuItem();
-        mnuConfiguracionEntornosPrueba.setActionCommand(MDSQLConstants.MNU_CONFIGURACION_ENTORNOS_PRUEBA); // NOI18N
-        mnuScriptInicial.add(mnuConfiguracionEntornosPrueba);
+//        mnuConfiguracionEntornosPrueba = new JMenuItem();
+//        mnuConfiguracionEntornosPrueba.setActionCommand(MDSQLConstants.MNU_CONFIGURACION_ENTORNOS_PRUEBA); // NOI18N
+//        mnuScriptInicial.add(mnuConfiguracionEntornosPrueba);
         
         mnuMantenimientoHistorico = new JMenuItem();
         mnuMantenimientoHistorico.setActionCommand(MDSQLConstants.MNU_MANTENIMIENTO_HISTORICO); // NOI18N
@@ -153,7 +153,7 @@ public class MainMenuBar extends MenuSupport {
         mnuScriptInicial.setText(literales.getLiteral("menu.scriptInicial"));
         mnuMantenimientoEntornosPruebas.setText(literales.getLiteral("menu.scriptInicial.mantenimientoEntornos"));
         mnuEjecucionScriptInicial.setText(literales.getLiteral("menu.scriptInicial.ejecucionScript"));
-        mnuConfiguracionEntornosPrueba.setText(literales.getLiteral("menu.scriptInicial.configuracionEntornos"));
+//        mnuConfiguracionEntornosPrueba.setText(literales.getLiteral("menu.scriptInicial.configuracionEntornos"));
         mnuMantenimientoHistorico.setText(literales.getLiteral("menu.mantenimientoHistorico"));
 	}
 	
@@ -176,9 +176,9 @@ public class MainMenuBar extends MenuSupport {
         mnuConsultaHistoricoCambios.addActionListener(menuActionListener);
         mnuConsultaPeticiones.addActionListener(menuActionListener);
         
-        mnuMantenimientoEntornosPruebas.addActionListener(menuActionListener);
-        mnuEjecucionScriptInicial.addActionListener(menuActionListener);
-        mnuConfiguracionEntornosPrueba.addActionListener(menuActionListener);
+        mnuMantenimientoEntornosPruebas.addActionListener(menuMantenimientoActionListener);
+        mnuEjecucionScriptInicial.addActionListener(menuMantenimientoActionListener);
+//        mnuConfiguracionEntornosPrueba.addActionListener(menuActionListener);
 
         mnuMantenimientoHistorico.addActionListener(menuMantenimientoActionListener);
 	}

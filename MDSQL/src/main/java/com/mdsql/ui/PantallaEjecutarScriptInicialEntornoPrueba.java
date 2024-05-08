@@ -10,7 +10,6 @@ import com.mdsql.ui.listener.PantallaEjecutarScriptInicialEntornoPruebaListener;
 import com.mdsql.utils.MDSQLConstants;
 import com.mdval.ui.utils.DialogSupport;
 import com.mdval.ui.utils.FrameSupport;
-import com.mdval.ui.utils.TableSupport;
 
 import lombok.Getter;
 

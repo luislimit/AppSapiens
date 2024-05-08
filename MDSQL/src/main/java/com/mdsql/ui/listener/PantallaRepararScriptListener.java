@@ -4,6 +4,8 @@ package com.mdsql.ui.listener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,18 +13,28 @@ import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.JOptionPane;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mdsql.bussiness.entities.InputReparaScript;
 import com.mdsql.bussiness.entities.Modelo;
+import com.mdsql.bussiness.entities.OutputRegistraEjecucion;
 import com.mdsql.bussiness.entities.OutputReparaScript;
 import com.mdsql.bussiness.entities.Proceso;
 import com.mdsql.bussiness.entities.Script;
+import com.mdsql.bussiness.entities.ScriptOld;
+import com.mdsql.bussiness.entities.SeleccionHistorico;
 import com.mdsql.bussiness.entities.Session;
 import com.mdsql.bussiness.entities.TextoLinea;
+import com.mdsql.bussiness.service.BBDDService;
+import com.mdsql.bussiness.service.EjecucionService;
 import com.mdsql.bussiness.service.ScriptService;
+import com.mdsql.ui.FramePrincipal;
+import com.mdsql.ui.PantallaAjustarLogEjecucion;
 import com.mdsql.ui.PantallaRepararScript;
 import com.mdsql.ui.PantallaSeleccionHistorico;
 import com.mdsql.ui.utils.ListenerSupport;
 import com.mdsql.ui.utils.MDSQLUIHelper;
+import com.mdsql.utils.ConfigurationSingleton;
 import com.mdsql.utils.MDSQLAppHelper;
 import com.mdsql.utils.MDSQLConstants;
 import com.mdval.exceptions.ServiceException;
@@ -120,6 +132,7 @@ public class PantallaRepararScriptListener extends ListenerSupport implements Ac
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	private void aceptar() {
 		try {
 			Integer response = UIHelper.showConfirm(literales.getLiteral("confirmacion.mensaje"),
@@ -147,18 +160,19 @@ public class PantallaRepararScriptListener extends ListenerSupport implements Ac
 					
 					Boolean continuarProcesado = (Boolean) pantallaSeleccionHistorico.getReturnParams().get("procesado");
 					if (continuarProcesado) {
-						repararScript(proceso, script);
+						List<SeleccionHistorico> objetosHistorico = (List<SeleccionHistorico>) pantallaSeleccionHistorico.getReturnParams().get("objetosHistorico");
+						repararScript(proceso, script, objetosHistorico);
 					}
 					else {
 						JOptionPane.showMessageDialog(pantallaRepararScript.getFrameParent(), "Operación cancelada");
 					}
 				}
 				else {
-					repararScript(proceso, script);
+					repararScript(proceso, script, null);
 				}
 			}
 
-		} catch (ServiceException e) {
+		} catch (ServiceException | IOException e) {
 			Map<String, Object> params = MDSQLUIHelper.buildError(e);
 			MDSQLUIHelper.showPopup(pantallaRepararScript.getFrameParent(), MDSQLConstants.CMD_ERROR, params);
 		}
@@ -169,11 +183,17 @@ public class PantallaRepararScriptListener extends ListenerSupport implements Ac
 	 * @param script 
 	 * @throws ServiceException
 	 */
-	private void repararScript(Proceso proceso, Script script) throws ServiceException {
+	private void repararScript(Proceso proceso, Script script, List<SeleccionHistorico> objetosHistorico) throws ServiceException, IOException {
 		ScriptService scriptService = (ScriptService) getService(MDSQLConstants.SCRIPT_SERVICE);
+		BBDDService bbddService = (BBDDService) getService(MDSQLConstants.BBDD_SERVICE);
+		EjecucionService ejecucionService = (EjecucionService) getService(MDSQLConstants.EJECUCION_SERVICE);
 		
 		Session session = (Session) MDSQLAppHelper.getGlobalProperty(MDSQLConstants.SESSION);
+		String selectedRoute = session.getSelectedRoute();
+		String ruta = selectedRoute.concat(File.separator);
 		String codigoUsuario = session.getCodUsr();
+		ConfigurationSingleton configuration = ConfigurationSingleton.getInstance();
+		String txtClaveEncriptada = configuration.getConfig(MDSQLConstants.TOKEN).substring(17, 29);
 		
 		InputReparaScript inputReparaScript = new InputReparaScript();
 		inputReparaScript.setNumeroOrden(script.getNumeroOrden());
@@ -186,28 +206,36 @@ public class PantallaRepararScriptListener extends ListenerSupport implements Ac
 		inputReparaScript.setNombreEsquema(nombreEsquema);
 		String mcaHis = proceso.getModelo().getMcaHis();
 		inputReparaScript.setPMcaHis(mcaHis);
+		String nombreBBDDHis = proceso.getBbdd().getNombreBBDDHis();
+		inputReparaScript.setNombreBBDDHis(nombreBBDDHis);
+		String nombreEsquemaHis = proceso.getBbdd().getNombreEsquemaHis();
+		inputReparaScript.setNombreEsquemaHis(nombreEsquemaHis);
 		
 		Boolean reprocesa = pantallaRepararScript.getRbtnReprocesar().isSelected();
+		Boolean mismoScript = pantallaRepararScript.getRbtnEjecutarScriptProcesado().isSelected();
+		
+		String mcaMismoScript = AppHelper.normalizeValueToCheck(mismoScript);
+		inputReparaScript.setMcaMismoScript(mcaMismoScript);
+		
+		String mcaReprocesa = AppHelper.normalizeValueToCheck(reprocesa);
+		inputReparaScript.setMcaReprocesa(mcaReprocesa);	
+		
 		if (reprocesa) {
-			String mcaReprocesa = AppHelper.normalizeValueToCheck(reprocesa);
-			inputReparaScript.setMcaReprocesa(mcaReprocesa);	
-			
 			// Leer el script y pasarlo a líneas
 			List<TextoLinea> lineasScriptReprocesar = MDSQLUIHelper.toTextoLineas(archivoReprocesado, MDSQLConstants.DEFAULT_CHARSET);
+			inputReparaScript.setNombreScriptNew(archivoReprocesado.getName());
+			inputReparaScript.setTxtRutaNew(session.getRutaScript());
 			inputReparaScript.setScriptNew(lineasScriptReprocesar);
-		}
-		else { // Se ha seleccionado script de reparación
 			
+			if (!mismoScript) {
+				List<TextoLinea> lineasScriptParche = MDSQLUIHelper.toTextoLineas(archivoReparacion, MDSQLConstants.DEFAULT_CHARSET);
+				inputReparaScript.setNombreScriptParche(archivoReparacion.getName());
+				inputReparaScript.setTxtRutaParche(session.getRutaScript());
+				inputReparaScript.setScriptParche(lineasScriptParche);
+			}
 		}
 		
-		Boolean mismoScript = pantallaRepararScript.getRbtnEjecutarScriptProcesado().isSelected();
-		if (mismoScript) {
-			String mcaMismoScript = AppHelper.normalizeValueToCheck(mismoScript);
-			inputReparaScript.setMcaMismoScript(mcaMismoScript);
-		}
-		else {
-			
-		}
+		inputReparaScript.setListaObjetoHis(objetosHistorico);
 		
 		String txtComentario = pantallaRepararScript.getJTextArea1().getText();
 		inputReparaScript.setTxtComentario(txtComentario);
@@ -215,23 +243,95 @@ public class PantallaRepararScriptListener extends ListenerSupport implements Ac
 		OutputReparaScript repararScript = scriptService.repararScript(inputReparaScript);
 		
 		if (reprocesa) {
-			renombrarFicheros(repararScript);
+			renombrarFicheros(proceso, repararScript);
+			cargarScripts(repararScript);
+			
+			if (!mismoScript) {
+				// Mostrar pantalla Ajustar log ejecución
+				eventBtnVerLog(proceso, script);
+				
+				// Se ejecuta el script de reparación
+				scriptService.ejecutarRepararScript(script, reprocesa, mismoScript, repararScript);
+			}
+			else {
+				// Generar el lanza y lo ejecuta
+				if (StringUtils.isNotBlank(repararScript.getScriptLanza())) {
+					String lanzaFile = ruta.concat(repararScript.getNombreScriptLanza());
+					MDSQLAppHelper.writeToFile(script.getTxtScriptLanza().concat(System.lineSeparator()), Paths.get(lanzaFile).toFile());
+				
+					String password = bbddService.consultaPasswordBBDD(nombreBBDD, nombreEsquema, txtClaveEncriptada);
+
+					// Ejecución del script
+					scriptService.executeLanzaFile(nombreEsquema, nombreBBDD, password, lanzaFile);
+					
+					// TODO - Obtener el log asociado al lanza
+					String logFile = ruta.concat(script.getNombreScriptLog());
+					List<TextoLinea> logLinesList = MDSQLAppHelper.writeFileToLines(new File(logFile));
+
+					// Registra la ejecución
+					OutputRegistraEjecucion outputRegistraEjecucion = ejecucionService.registraEjecucion(
+							proceso.getIdProceso(), script.getNumeroOrden(), codigoUsuario, logLinesList);
+				}
+				else { // O generar los ficheros
+					for (Script scr : repararScript.getListaScript()) {
+						MDSQLAppHelper.dumpLinesToFile(scr.getLineasScript(), Paths.get(ruta.concat(scr.getNombreScript())).toFile());
+					}
+				}
+				
+			}
 			
 			List<Script> scripts = repararScript.getListaScript();
 			pantallaRepararScript.getReturnParams().put("scripts", scripts);
 			pantallaRepararScript.dispose();
 		}
-		else { // Se ha seleccionado script de reparación
-			
+		else { 
+			if (!mismoScript) {
+				// Mostrar pantalla Ajustar log ejecución
+				eventBtnVerLog(proceso, script);
+				
+				// Se ejecuta el script de reparación
+				scriptService.ejecutarRepararScript(script, reprocesa, mismoScript, repararScript);
+			}
+			else {
+				scriptService.executeScripts(proceso.getBbdd(), repararScript);
+			}
 		}
+	}
+	
+	private void eventBtnVerLog(Proceso proceso, Script script) {
+		Map<String, Object> params = new HashMap<>();
+
+		params.put("script", script);
+		params.put("proceso", proceso);
+		
+		if ("Ejecutado".equals(script.getDescripcionEstadoScript())) {
+			params.put("consulta", Boolean.TRUE);
+		}
+		else {
+			params.put("consulta", Boolean.FALSE);
+		}
+		
+		PantallaAjustarLogEjecucion pantallaAjustarLogEjecucion = (PantallaAjustarLogEjecucion) MDSQLUIHelper
+				.createDialog(pantallaRepararScript.getFrameParent(), MDSQLConstants.CMD_AJUSTAR_LOG_EJECUCION,
+						params);
+		MDSQLUIHelper.show(pantallaAjustarLogEjecucion);
 	}
 
 	/**
 	 * @param repararScript
 	 */
-	private void renombrarFicheros(OutputReparaScript repararScript) {
-		// TODO Preguntar a Mario donde vienen los nuevos nombres
+	private void renombrarFicheros(Proceso proceso, OutputReparaScript repararScript) {
+		String ruta = proceso.getRutaTrabajo();
 		
+		for (ScriptOld scriptOld : repararScript.getListaScriptOld()) {
+			File f = new File(ruta.concat(scriptOld.getNombreScriptOld()));
+			MDSQLAppHelper.renombrarArchivo(f, ruta.concat(scriptOld.getNombreScriptNew()));
+		}
+	}
+	
+	private void cargarScripts(OutputReparaScript repararScript) {
+		FramePrincipal framePrincipal = (FramePrincipal) pantallaRepararScript.getFrameParent();
+		MDSQLUIHelper.putScriptsOn(framePrincipal, repararScript.getListaScript());
 	}
 
 }

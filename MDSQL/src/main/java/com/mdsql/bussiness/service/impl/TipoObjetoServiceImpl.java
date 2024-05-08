@@ -57,7 +57,7 @@ public class TipoObjetoServiceImpl extends ServiceSupport implements TipoObjetoS
 			
 			// Hay avisos
 			if (result == 2) {
-				outputConsultaTiposObjeto.setServiceException(buildException(callableStatement.getArray(4)));
+				outputConsultaTiposObjeto.setServiceException(buildException(callableStatement.getArray(3)));
 			}
 
             List<String> tipos = new ArrayList<>();

@@ -12,6 +12,7 @@ import com.mdsql.bussiness.entities.OutputDescartarScript;
 import com.mdsql.bussiness.entities.OutputExcepcionScript;
 import com.mdsql.bussiness.entities.OutputProcesaScript;
 import com.mdsql.bussiness.entities.OutputRegistraEjecucion;
+import com.mdsql.bussiness.entities.OutputRegistraEjecucionParche;
 import com.mdsql.bussiness.entities.OutputRegistraEjecucionType;
 import com.mdsql.bussiness.entities.OutputReparaScript;
 import com.mdsql.bussiness.entities.Proceso;
@@ -30,6 +31,8 @@ public interface ScriptService {
 
     List<OutputRegistraEjecucion> executeScripts(BBDD bbdd, List<Script> scripts) throws ServiceException;
     
+    List<OutputRegistraEjecucion> executeScripts(BBDD bbdd, OutputReparaScript outputReparaScript) throws ServiceException;
+    
     OutputRegistraEjecucionType executeScript(BBDD bbdd, String nombreScript, List<TextoLinea> script, String nombreFicheroLog) throws ServiceException;
 
     OutputReparaScript repararScript(InputReparaScript inputReparaScript) throws ServiceException;
@@ -40,4 +43,9 @@ public interface ScriptService {
 
     OutputExcepcionScript excepcionScript(Proceso proceso, Script script, String txtMotivoExcepcion, String codUsr) throws ServiceException;
 
+	OutputRegistraEjecucionParche executeScriptParche(BBDD bbdd, Script script) throws ServiceException;
+	
+	void ejecutarRepararScript(Script script, Boolean isReparacion, Boolean isSameScript, OutputReparaScript outputReparaScript);
+	
+	void executeLanzaFile(String nombreEsquema, String nombreBBDD, String password, String fileLocation)  throws ServiceException;
 }

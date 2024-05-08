@@ -232,7 +232,7 @@ public class EjecucionServiceImpl extends ServiceSupport implements EjecucionSer
 
             String typeError = createCallTypeError();
 
-            logProcedure(runSP, idProceso, codigoUsuario, logScript);
+            logProcedure(runSP, idProceso, numeroOrden, codigoUsuario, logScript);
 
             Struct[] structLinea = new Struct[logScript.size()];
 

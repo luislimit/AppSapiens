@@ -24,7 +24,7 @@ public class OutputReparaScript implements Serializable {
 	private String nombreScriptRepara;
     private List<TextoLinea> scriptRepara;
     private String nombreScriptLanza;
-    private List<TextoLinea> scriptLanza;
+    private String scriptLanza;
     private String nombreLogRepara;
     private List<ScriptOld> listaScriptOld;
     private List<Script> listaScript;
